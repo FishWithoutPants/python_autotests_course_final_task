@@ -3,6 +3,7 @@ from pages.product_page import ProductPage
 import pytest
 import time
 from pages.basket_page import BasketPage
+from mimesis import Person
 
 
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
@@ -75,3 +76,29 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     basket.go_to_basket()
     basket.should_not_be_products()
     basket.should_be_a_message()
+
+
+@pytest.mark.login_user
+@pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"])
+class TestUserAddToBasketFromProductPage():
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/"
+        page = LoginPage(browser, link)
+        page.open()
+        person = Person()
+        page.register_new_user(person.email(unique=True), person.password(length=9))
+        page.should_be_authorized_user()
+        yield
+
+    def test_user_cant_see_success_message(self, browser, link):
+        page = ProductPage(browser, link)
+        page.open()
+        page.should_not_be_success_message()
+
+    def test_user_can_add_product_to_basket(self, browser, link):
+        page = ProductPage(browser, link)
+        page.open()
+        page.add_to_cart()
+        page.should_match_prices()
+        page.should_match_names()

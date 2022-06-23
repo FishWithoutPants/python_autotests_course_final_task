@@ -33,6 +33,10 @@ class BasePage():
         element_value = self.browser.find_element(how, what)
         return element_value.text
 
+    def input_text_to_field(self, how, what, value):
+        element_value = self.browser.find_element(how, what)
+        element_value.send_keys(value)
+
 #  ждём 4 секунды, проверяя что элемента на странице нет. не появляется - успех
     def is_not_element_present(self, how, what, timeout=4):
         try:
@@ -62,6 +66,10 @@ class BasePage():
     def go_to_basket(self):
         link = self.browser.find_element(*BasePageLocators.GO_TO_CART_BTN)
         link.click()
+
+    def should_be_authorized_user(self):
+        assert self.is_element_present(*BasePageLocators.USER_ICON), "User icon is not presented," \
+                                                                     " probably unauthorised user"
 
     def solve_quiz_and_get_code(self):
         alert = self.browser.switch_to.alert
